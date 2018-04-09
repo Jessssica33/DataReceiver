@@ -3,6 +3,7 @@ package com.fieldbook.tracker.datareceiver;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -25,7 +26,7 @@ public class BluetoothClient {
     private static final String TAG = "BluetoothClient";
     ConnectThread mConnectThread;
     ConnectedThread mConnectedThread;
-    private BluetoothSocket mSocket;
+    //private BluetoothSocket mSocket;
 
     private Handler mHandler;
 
@@ -53,10 +54,6 @@ public class BluetoothClient {
 
     }
 
-    public void connectState() {
-
-    }
-
     public void write(byte[] bytes) {
 
         if (mConnectedThread == null) {
@@ -66,24 +63,6 @@ public class BluetoothClient {
         mConnectedThread.write(bytes);
     }
 
-
-
-    /*private void manageSocket(BluetoothSocket socket) {
-
-        mSocket = socket;
-
-        mConnectedThread = new ConnectedThread(socket);
-        //Log.e("error", "=======connected thread====");
-        mConnectedThread.start();
-
-        if (mConnectedThread != null && (mConnectedThread.isAlive()
-                || mConnectedThread.isDaemon() || mConnectedThread.isInterrupted())) {
-            //mConnectedThread.cancel();
-            Log.e("error", "=======connected thread====");
-        }
-
-
-    }*/
 
     private class ConnectThread extends Thread{
         private BluetoothSocket mmSocket;
@@ -105,39 +84,31 @@ public class BluetoothClient {
 
         public void run() {
             mBluetoothAdapter.cancelDiscovery();
+            int loop = 1;
+            Message msg;
+
 
             try {
                 mmSocket.connect();
+                loop = 0;
             } catch (IOException connectEx) {
+                loop = 1;
+                msg = mHandler.obtainMessage(MessageConstants.MESSAGE_FAILED_CONNECT, 0, -1, null);
+                msg.sendToTarget();
                 connectEx.printStackTrace();
                 try {
                     mmSocket.close();
                 } catch (IOException closeEx) {
                     Log.e(TAG, "Could not close the client socket", closeEx);
                 }
+
                 return;
             }
 
-            /*try {
-                Log.i(TAG,"Trying fallback...");
-                mmSocket =(BluetoothSocket) mmDevice.getClass().getMethod("createRfcommSocket", new Class[] {int.class}).invoke(mmDevice,2);
-                mmSocket.connect();
-                Log.i(TAG,"Connected");
-                //Toast.makeText(mContext, "Connected", Toast.LENGTH_SHORT).show();
-            } catch (Exception e2) {
-                //Toast.makeText(mContext, "Cannot connected", Toast.LENGTH_SHORT).show();
-                Log.e(TAG, "Couldn't establish Bluetooth connection!");
-                try {
-                    mmSocket.close();
-                } catch (IOException e3) {
-                    Log.e(TAG, "unable to close() socket during connection failure", e3);
-                }
-
-                return;
-            }*/
-
-
-            //manageSocket(mmSocket);
+            if (loop == 0) {
+                msg = mHandler.obtainMessage(MessageConstants.MESSAGE_CONNECT, 0, -1, null);
+                msg.sendToTarget();
+            }
 
             mConnectedThread = new ConnectedThread(mmSocket);
             mConnectedThread.start();
@@ -145,10 +116,8 @@ public class BluetoothClient {
             if (mConnectedThread != null && (mConnectedThread.isAlive()
                     || mConnectedThread.isDaemon() || mConnectedThread.isInterrupted())) {
                 //mConnectedThread.cancel();
-                Log.i("info", "=======connected thread====");
+                Log.i("info", "=======connected thread=======");
             }
-
-
         }
 
         public void cancel() {

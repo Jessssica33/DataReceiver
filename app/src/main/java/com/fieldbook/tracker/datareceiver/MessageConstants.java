@@ -9,4 +9,5 @@ public interface MessageConstants {
     public static final int MESSAGE_WRITE = 1;
     public static final int MESSAGE_TOAST = 2;
     public static final int MESSAGE_CONNECT = 3;
+    public static final int MESSAGE_FAILED_CONNECT = 4;
 }

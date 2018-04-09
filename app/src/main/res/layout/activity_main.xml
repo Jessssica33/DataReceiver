@@ -7,12 +7,37 @@
     android:orientation="vertical"
     tools:context="com.fieldbook.tracker.datareceiver.MainActivity">
 
+    <android.support.v7.widget.FitWindowsLinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/connectionInfo"
+            android:layout_margin="20dp"
+            android:textSize="24dp"/>
+        <android.support.v7.widget.AppCompatButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="opened"
+            android:id="@+id/opened"
+            android:textSize="24dp"
+            android:layout_marginTop="10dp"
+            style="?android:attr/borderlessButtonStyle"/>
+    </android.support.v7.widget.FitWindowsLinearLayout>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/drop1"
-        android:layout_marginTop="24dp"
-        android:layout_gravity="center"
+        android:layout_marginTop="12dp"
+        android:layout_marginLeft="4dp"
+        android:textSize="24dp"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/content1"
+        android:layout_marginLeft="20dp"
         android:textSize="24dp"/>
 
     <TextView
@@ -20,7 +45,13 @@
         android:layout_height="wrap_content"
         android:id="@+id/drop2"
         android:layout_marginTop="12dp"
-        android:layout_gravity="center"
+        android:textSize="24dp"
+        android:layout_marginLeft="4dp"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/content2"
+        android:layout_marginLeft="20dp"
         android:textSize="24dp"/>
 
     <TextView
@@ -28,8 +59,16 @@
         android:layout_height="wrap_content"
         android:id="@+id/drop3"
         android:layout_marginTop="12dp"
-        android:layout_gravity="center"
+        android:textSize="24dp"
+        android:layout_marginLeft="4dp"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/content3"
+        android:layout_marginLeft="20dp"
         android:textSize="24dp"/>
+
+
 
 
 </android.support.v7.widget.LinearLayoutCompat>
