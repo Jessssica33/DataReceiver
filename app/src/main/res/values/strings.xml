@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">DataReceiver</string>
+    <string name="device">Devices</string>
+    <string name="list_summary">Please choose one device which can create bluetooth connection</string>
 </resources>

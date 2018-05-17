@@ -1,25 +1,71 @@
 package com.fieldbook.tracker.datareceiver;
 
 import android.app.ActionBar;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.ListPreference;
+import android.preference.PreferenceFragment;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
     private TextView mDrop1, mDrop2, mDrop3, mContent1, mContent2, mContent3, mConnectionInfo;
-    private Button mOpenedButton;
+    private Button mSettingButton;
+
     private BluetoothClient mBluetoothClient;
+    private BluetoothAdapter mBluetoothAdapter;
+    private Set<BluetoothDevice> mPairedDevices;
+    private String mDeviceName = "";
+    private BluetoothDevice mDevice;
+
+    private final String TAG = "MAINACTIVITY";
+    private int connectionFlag = 0;   //0 means no connection, 1 means connect success
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        initUIInstance();
+
+        //deal with bluetooth adapter and paired devices
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        mPairedDevices = mBluetoothAdapter.getBondedDevices();
+
+        mBluetoothClient = new BluetoothClient(mHandler);
+        //mBluetoothClient.init();
+
+        mSettingButton.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v) {
+                mSettingButton.setBackgroundColor(getResources().getColor(R.color.colorDarkGreen));
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                intent.putExtra("devices", getPairedDeviceName());
+                startActivity(intent);
+            }
+        });
+
+        getConnectDeviceFromSetting();
+        if (getDevice()) {
+            mBluetoothClient.init(mDevice);
+        }
+    }
+
+    private void initUIInstance() {
 
         mDrop1 = (TextView) findViewById(R.id.drop1);
         mDrop2 = (TextView) findViewById(R.id.drop2);
@@ -28,18 +74,55 @@ public class MainActivity extends AppCompatActivity {
         mContent2 = (TextView) findViewById(R.id.content2);
         mContent3 = (TextView) findViewById(R.id.content3);
         mConnectionInfo = (TextView) findViewById(R.id.connectionInfo);
-        mOpenedButton = (Button) findViewById(R.id.opened);
-
-        mBluetoothClient = new BluetoothClient(mHandler);
-        mBluetoothClient.init();
-
-        mOpenedButton.setOnClickListener(new View.OnClickListener(){
-            public void onClick(View v) {
-                mBluetoothClient.init();
-            }
-        });
+        mSettingButton = (Button) findViewById(R.id.setting);
     }
 
+    private boolean getDevice() {
+
+        if (mDeviceName.equals("-1") || mDeviceName.trim().isEmpty()) {
+            return false;
+        }
+
+        for (BluetoothDevice device: mPairedDevices) {
+            if (device.getName().equals(mDeviceName)) {
+                mDevice = device;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private String[] getPairedDeviceName(){
+        ArrayList<String> names = new ArrayList<>();
+        if (mPairedDevices.size() > 0) {
+            for (BluetoothDevice device: mPairedDevices) {
+                names.add(device.getName());
+            }
+        }
+
+        String[] tmp = new String[names.size()];
+        for (int i = 0; i < names.size(); ++i) {
+            tmp[i] = names.get(i);
+
+        }
+        return tmp;
+    }
+
+    //true means do not change device, false means change new device for connection
+    private boolean getConnectDeviceFromSetting() {
+        SharedPreferences shardPref = PreferenceManager.getDefaultSharedPreferences(this);
+        String choose = shardPref.getString("deviceList", "-1");
+        //Toast.makeText(this, choose, Toast.LENGTH_SHORT).show();
+        if (mDeviceName.equals(choose)) {
+            Log.i(TAG, "Do not change the connect device");
+            return true;
+        } else {
+            Log.i(TAG, "Change connect device, should re-connect it");
+            mDeviceName = choose;
+            return false;
+        }
+    }
 
     @Override
     protected  void onResume() {
@@ -53,6 +136,16 @@ public class MainActivity extends AppCompatActivity {
         // status bar is hidden, so hide that too if necessary.
         android.support.v7.app.ActionBar actionBar = getSupportActionBar();
         actionBar.hide();
+
+        mSettingButton.setBackgroundColor(getResources().getColor(R.color.colorLightGreen));
+
+        Boolean con = getConnectDeviceFromSetting();
+        if (con == false  || connectionFlag == 0) {
+            if (getDevice()) {
+                mBluetoothClient.init(mDevice);
+            }
+        }
+
     }
 
 
@@ -114,12 +207,16 @@ public class MainActivity extends AppCompatActivity {
                     setText(readMessage);
                     break;
                 case MessageConstants.MESSAGE_CONNECT:
-                    mConnectionInfo.setText("Bluetooth connect success");
-                    mOpenedButton.setClickable(false);
+                    //mConnectionInfo.setText("Bluetooth connect success");
+                    mConnectionInfo.setText("CONNECT SUCCESS");
+                    connectionFlag = 1;
+                    //mSettingButton.setClickable(false);
                     break;
                 case MessageConstants.MESSAGE_FAILED_CONNECT:
-                    mConnectionInfo.setText("Connection failed, please open FieldBook.");
-                    mOpenedButton.setClickable(true);
+                    //mConnectionInfo.setText("Connection failed, please open FieldBook.");
+                    mConnectionInfo.setText("NO CONNECTION");
+                    connectionFlag = 0;
+                    //mSettingButton.setClickable(true);
                     break;
             }
         }
