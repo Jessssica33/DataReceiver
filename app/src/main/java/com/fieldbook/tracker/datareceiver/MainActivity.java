@@ -142,6 +142,7 @@ public class MainActivity extends AppCompatActivity {
         Boolean con = getConnectDeviceFromSetting();
         if (con == false  || connectionFlag == 0) {
             if (getDevice()) {
+                mBluetoothClient.cancel();
                 mBluetoothClient.init(mDevice);
             }
         }

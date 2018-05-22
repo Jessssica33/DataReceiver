@@ -65,6 +65,19 @@ public class BluetoothClient {
         mConnectedThread.write(bytes);
     }
 
+    public void cancel() {
+
+        if (mConnectedThread != null) {
+            mConnectedThread.cancel();
+            mConnectedThread = null;
+        }
+
+        if (mConnectThread != null) {
+            mConnectThread.cancel();
+            mConnectThread = null;
+        }
+    }
+
 
     private class ConnectThread extends Thread{
         private BluetoothSocket mmSocket;
@@ -173,6 +186,9 @@ public class BluetoothClient {
                     readMsg.sendToTarget();
                 } catch (IOException e) {
                     Log.d(TAG, "Input stream was disconnected", e);
+
+                    Message msg = mHandler.obtainMessage(MessageConstants.MESSAGE_FAILED_CONNECT, 0, -1, null);
+                    msg.sendToTarget();
                     break;
                 }
             }
