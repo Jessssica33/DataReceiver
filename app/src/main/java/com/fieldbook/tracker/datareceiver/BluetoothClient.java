@@ -20,7 +20,7 @@ import java.util.UUID;
 
 public class BluetoothClient {
 
-    //private final BluetoothAdapter mBluetoothAdapter;
+    private BluetoothAdapter mBluetoothAdapter;
     private BluetoothDevice mDevice;
     private static final UUID MY_UUID = UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
     private static final String TAG = "BluetoothClient";
@@ -35,9 +35,10 @@ public class BluetoothClient {
         //mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     }
 
-    public void init(BluetoothDevice device) {
+    public void init(BluetoothDevice device, BluetoothAdapter adapter) {
 
         mDevice = device;
+        mBluetoothAdapter = adapter;
         //This part is done in MainActivity
         /*Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
         if (pairedDevices.size() > 0) {
