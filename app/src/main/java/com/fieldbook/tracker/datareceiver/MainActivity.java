@@ -48,8 +48,7 @@ public class MainActivity extends AppCompatActivity {
         mPairedDevices = mBluetoothAdapter.getBondedDevices();
 
         mBluetoothClient = new BluetoothClient(mHandler);
-        //mBluetoothClient.init();
-
+        
         mSettingButton.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v) {
                 mSettingButton.setBackgroundColor(getResources().getColor(R.color.colorDarkGreen));
@@ -59,10 +58,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        getConnectDeviceFromSetting();
-        if (getDevice()) {
-            mBluetoothClient.init(mDevice);
-        }
+
     }
 
     private void initUIInstance() {
@@ -113,9 +109,11 @@ public class MainActivity extends AppCompatActivity {
     private boolean getConnectDeviceFromSetting() {
         SharedPreferences shardPref = PreferenceManager.getDefaultSharedPreferences(this);
         String choose = shardPref.getString("deviceList", "-1");
-        //Toast.makeText(this, choose, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, choose, Toast.LENGTH_SHORT).show();
+
         if (mDeviceName.equals(choose)) {
             Log.i(TAG, "Do not change the connect device");
+            mDeviceName = choose;
             return true;
         } else {
             Log.i(TAG, "Change connect device, should re-connect it");
@@ -143,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
         if (con == false  || connectionFlag == 0) {
             if (getDevice()) {
                 mBluetoothClient.cancel();
-                mBluetoothClient.init(mDevice);
+                mBluetoothClient.init(mDevice, mBluetoothAdapter);
             }
         }
 
