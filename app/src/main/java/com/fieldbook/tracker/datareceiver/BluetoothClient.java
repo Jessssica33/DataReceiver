@@ -6,11 +6,20 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Array;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.DoubleBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.LongBuffer;
+import java.nio.ShortBuffer;
 import java.util.Set;
 import java.util.UUID;
 
@@ -103,7 +112,6 @@ public class BluetoothClient {
             int loop = 1;
             Message msg;
 
-
             try {
                 mmSocket.connect();
                 loop = 0;
@@ -152,7 +160,6 @@ public class BluetoothClient {
         private final BluetoothSocket mmSocket;
         private final InputStream mmInStream;
         private final OutputStream mmOutStream;
-
         private byte[] mmBuffer;
 
         public ConnectedThread(BluetoothSocket socket) {
@@ -177,10 +184,11 @@ public class BluetoothClient {
         }
 
         public void run() {
-            mmBuffer = new byte[1024];
+            //mmBuffer = new byte[1024];
             int numBytes;
 
             while (true) {
+                mmBuffer = new byte[512];
                 try {
                     numBytes = mmInStream.read(mmBuffer);
                     Message readMsg = mHandler.obtainMessage(MessageConstants.MESSAGE_READ, numBytes, -1, mmBuffer);
